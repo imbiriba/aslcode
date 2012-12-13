@@ -1,0 +1,178 @@
+
+
+
+##################################################
+name: 		create_rtp_l1b
+type:		matlab function
+location:	git/prod_mat/airs/rtp	
+
+description:	Create and AIRS allfovs files, on a granule basis
+
+input_arg_1:	date 	a particular data in matlab format (range)
+input_opt_2:	granule	(optional) the desired granule number array (empty means all)
+input_opt_3:	overwrite	(optional) 0-don't, 1-do.
+input_opt_4:	output_dir	(optional) overide the default dump directory.
+
+output_arg:	
+
+usage_1:	create_rtp_l1b(datenum(2012,09,20)); % all gran
+usage_2:	create_rtp_l1b(datenum(2012,09,20:22),[]);  \% two days, all grans
+usage_3:	create_rtp_l1b(datenum(2012,09,20),[16:24]); \% grans 16-24
+
+calls:		readl1b_all, rtpwrite_all, usgs_deg10_dem, findfiles, fixedsites, say
+
+created_by:	Paul Schou
+created:	2012.01.01
+
+see_also:	create_rtp_l1b
+end.
+##################################################
+
+##################################################
+name:		rtpread_all
+type:		matlab function
+location:	git/readers
+
+description:	Reads files containing an RTP structure, either in either rtp, rtp_1/2, rtp_Z, rtp_Z1/2 formats, as well as .mat file, containing fields called head, hattr, prof, pattr, or h,ha,p, and pa.
+
+input_arg_1:	file_name File name in the .rtp* or .mat format
+
+output_arg_1:	head  header structure
+output_arg_2:	hattr header attributes
+output_arg_3:	prof  profile structure
+output_arg_4:	pattr profile attributes
+
+usage_1:	[h ha p pa]=rtpread_all('test.rtp_Z1');
+
+calls:		rtpread
+
+created_by: 	Breno Imbiriba	
+created:	2010.08.25
+
+see_also:	rtpwrite_all
+end.
+##################################################
+
+##################################################
+name:		rtpwrite_all
+type: 		matlab function
+location:	git/readers
+
+input_arg_1:	fname output file name
+input_arg_2:	head  header structure
+input_arg_3:	hattr header attribute
+input_arg_4:	prof  profile structure
+input_arg_5:	pattr profile attribute
+
+
+description: 	
+>> Save RTP data into either an *rtp?? file or a .mat file. 
+>> Output file name `fname' can be:
+>>
+V>                 nchan   nchan
+V> fname can be:   <=4231  >4231
+V> *.rtp           *.rtp   *.rtp_1/*.rtp_2
+V> *.rtpZ          *.rtpZ  *.rtp_1Z/*.rtp_2Z
+V> *.rtp_1         Error   *.rtp_1/*.rtp_2
+V> *.rtp_1Z        Error   *.rtp_1Z/*.rtp_2Z
+V>
+V> *.mat  -> save as head,hattr,prod,pattr
+>>
+>> It will Error out if requesting to save data in the `IASI' format but file have less than 4231 channels.
+
+output_opt_1:	ofname  Cell array - If present, `ofname' is the will return the actuall file names associated to the data - usefull for IASI data.
+
+usage_1: 	
+>> If h, ha, p, and pa represent an IASI RTP structure, then:
+V>
+V> ofname=rtpwrite_all('test.rtp',h,ha,p,pa); 
+V> 
+>> Will generate two files, test.rtp_1 and test.rtp_2, and thses names will
+>> be in the ofname variale. 
+
+calls: 	rtpwrite
+
+created_by:     Breno Imbiriba
+created:        2010.08.25
+
+see_also:       rtpread_all
+end.
+##################################################
+##################################################
+name: 	usgs_deg10_dem
+type:	matlab function
+location: git/science
+
+input_arg_1:	lat latitude vector (degrees)
+input_arg_2:	lon longitude vector (degrees)
+
+output_arg_1:	salti surface altitude (meters)
+output_arg_2:	landfrac land fraction (0 to 1)
+
+description:
+>> Return surface altitude and land fraction for the nearest
+>> point in the 10 points per degree lookup table.
+>> Note: resolution is roughly 11 km near the equator.
+>>
+>> Sources: elevation is based on USGS GTOPO30 data. Land fraction
+>> is based on UMD (College Park) GLCF 1 km land cover classification
+>> data.  The original data has been spatially averaged (12x12 points)
+>> from 1/120 of a degree to 1/10 of a degree by Breno Imbiriba, UMBC.
+
+usage_1:	[salti, landfrac] = usgs_deg10_dem(lat(:), lon(:));
+
+calls: 	/asl/data/usgs/world_grid_deg10.mat
+
+created_by:	Paul Schou
+created:	
+
+see_also:
+
+end.
+##################################################
+##################################################
+name: findfiles
+type: matlab function
+location: git/science
+
+input_arg_1:	lat [1 x n] latitude vector -90 to 90
+input_arg_2:	lon [1 x n] longitude vector -180 to 360
+inpute_arg_3:	range_km [1 x 1] Maximum range (km)
+
+output_arg_1:	isiteind [1 x m] indices of lat/lon within range
+output_arg_2:	isitenum [1 x m] site number
+
+description:	Find lat/lon within range of fixed sites.
+
+created_by:	Scott Hannon
+created:	2007.04.11
+
+end.
+##################################################
+##################################################
+name: say
+type: matlab function
+location: git/utils
+
+input_arg_1: 	message Message to say
+input_opt_2:	all Flag to set printing the whole call stack.
+
+output_arg_1:	stack (cell array) the calling stack 
+
+description:	
+>> Routine to issue messages printing the calling routine name, or the whole calling stack.
+>> For example:
+>V say('message');
+>V >> routine1::routine2::...::routineN: message.'
+>V
+>V stk=say(); % Will return the calling stack.
+>>
+>> Set all=true ro print the whole stack
+
+usage_1:	say('messate'); 
+
+created_by:	Breno Imbiriba	
+created: 	
+
+end.
+

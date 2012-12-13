@@ -1,0 +1,69 @@
+\documentclass[12pt]{article}
+
+
+\newcommand{\funcname}{\begingroup \catcode`_=12 \funcnameIn}
+\newcommand{\funcnameIn}[2]{
+\begin{tabular}{l}
+{\Large\bf \texttt{#1}\label{#1}}\\
+{\small\it #2}\\ 
+\end{tabular}
+}
+\newcommand{\location}[1]{
+\begin{tabular}{l}
+{\large at} \texttt{#1}
+\end{tabular}
+}
+\renewcommand{\description}[1]{
+Description: #1
+}
+\newcommand{\inputargs}[2]{
+$\rightarrow$
+{\bf \texttt{#1}}: {#2} 
+}
+\newcommand{\outputargs}[2]{
+$\leftarrow$
+{\bf \texttt{#1}}: {#2}
+}
+\newcommand{\example}[1]{
+Eg.: \texttt{#1}
+}
+\newcommand{\seealso}[1]{
+See also: {\bf \texttt{#1}} - \ref{#1}
+}
+
+
+
+\begin{document}
+
+% function
+\funcname{create_rtp_l1b}{matlab function}
+
+\location{git/prod_mat/airs/rtp}
+
+\description{Create an AIRS allfovs files, on a granule base}
+
+\inputargs{date}{a particular data in matlab format (range)}
+
+\inputargs{granule}{(optional) the desired granule number array (empty means all)}
+
+\inputargs{overwrite}{(optional) 0-don't, 1-do.}
+
+\inputargs{output_dir}{(optional) overide the default dump directory.}
+
+\outputargs{}
+
+
+
+\example{create_rtp_l1b(datenum(2012,09,20)); \% all grans}
+
+\example{create_rtp_l1b(datenum(2012,09,20:22),[]);  \% two days, all grans}
+
+\example{create_rtp_l1b(datenum(2012,09,20),[16:24]); \% grans 16-24}
+
+\seealso{create_rtp_l1b}
+
+
+
+
+
+\end{document}

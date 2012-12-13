@@ -1,0 +1,106 @@
+
+
+
+
+Guide lines
+
+1. Modular: 
+	One routine <-> one task
+
+2. Standard Interface:
+	Similar tasks use identical interfaces.
+
+3. RTPcentric:
+	Whenever possible: RTPin -> RTPout
+
+
+Data flow example:
+
+(Basic I/O)
+
+1. Request Instrument Data (either time wise or something else)
+1.1. Process request (sort out which files to handle)
+1.2. Compute file names 
+1.3. Locate data files 
+1.4. Read data (output is RTP)
+
+
+2. Request Model Data (using input RTP as a guide)
+2.1. Process request (sort out which files to handle)
+2.2. Compute file names
+2.3. locate data files
+2.4. Read data
+2.5. Merge Model data to Instrument data (output is RTP)
+
+(Process data): RTPin -> RTPout
+Data subsetting (geo, channel, etc...)
+Clear filters
+Calculations
+etc...
+
+
+3. Save data into RTP file 
+
+
+[verb]_[noun]_[modifier]
+
+Meaning	 LowLv   MidLv    HighLv
+-----------------------------------
+input	|read	|load	 |obtain
+output	|write	|save	 |
+downld	|fetch	|	 |
+cat	|join	|combine |merge
+calc	|compute|generate|produce
+
+Or something like that.
+
+
+
+Example main code: (not sure about the verbs)
+
+
+function example_by_date(date)
+
+   rtp0 = obtain_l1bcm_bydate(date);
+
+   rtp1 = merge_merra_tortp(rtp0);
+
+   rtp2 = subset_uc_airs(rtp1); 
+
+   rtp3 = generate_radiances(rtp2,which_klayers, which_ksarta);
+
+   rtpwrite(filename,rtp3);
+
+end
+
+function rtp=obtain_l1bcm_bydate(date)
+
+  airs_fnames = produce_l1bcm_filenames(date);
+  airs_fnames = fetch_l1bcm(airs_fnames); %return existent files
+  rtp         = read_l1bcm(airs_fnames);
+end
+
+function rtp=merge_merra_data(rtp0)
+
+  merra_fnames = produce_MERra_filenames(rtp0);
+  merra_fnames = fetch_merra(merra_fnames);
+  rtp_merra    = read_merra(merra_fnames, rtp0);
+  rtp          = join_rtp(rtp0,rtp_merra);
+end
+ 
+function rtp = subset_uc_airs(rtp0)
+  
+  rtp1 = reset_water(rtp0);
+  rtp1 = compute_uc_flags(rtp1);
+  rtp = subset_rtp(rtp1,rtp1.clear==1);
+
+end
+
+function rtp=generate_radiances(rtp0, wk, ws)
+
+  rtp1 = run_klayers(rtp0,wk);
+  rtp = run_ksarta(rtp1, ws);
+
+end
+
+
